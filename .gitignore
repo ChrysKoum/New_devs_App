@@ -1,0 +1,52 @@
+# Dependencies
+frontend/node_modules/
+node_modules/
+backend/venv/
+backend/.venv/
+
+# Build outputs
+frontend/dist/
+frontend/build/
+backend/__pycache__/
+backend/**/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# IDE / Editor
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker
+docker-compose.override.yml
+*.log
+
+# Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Vite
+*.timestamp-*
+
+# Redis dump
+dump.rdb

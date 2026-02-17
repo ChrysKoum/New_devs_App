@@ -1,16 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { RevenueSummary } from "./RevenueSummary";
+import { useAuth } from "../contexts/AuthContext.new";
 
-const PROPERTIES = [
-  { id: 'prop-001', name: 'Beach House Alpha' },
-  { id: 'prop-002', name: 'City Apartment Downtown' },
-  { id: 'prop-003', name: 'Country Villa Estate' },
-  { id: 'prop-004', name: 'Lakeside Cottage' },
-  { id: 'prop-005', name: 'Urban Loft Modern' }
-];
+// Properties mapped per tenant for proper data isolation
+const TENANT_PROPERTIES: Record<string, { id: string; name: string }[]> = {
+  'tenant-a': [
+    { id: 'prop-001', name: 'Beach House Alpha' },
+    { id: 'prop-002', name: 'City Apartment Downtown' },
+    { id: 'prop-003', name: 'Country Villa Estate' },
+  ],
+  'tenant-b': [
+    { id: 'prop-001', name: 'Mountain Lodge Beta' },
+    { id: 'prop-004', name: 'Lakeside Cottage' },
+    { id: 'prop-005', name: 'Urban Loft Modern' },
+  ],
+};
 
 const Dashboard: React.FC = () => {
-  const [selectedProperty, setSelectedProperty] = useState('prop-001');
+  const { user } = useAuth();
+  const tenantId = (user as any)?.tenant_id ?? '';
+  const properties = useMemo(
+    () => TENANT_PROPERTIES[tenantId] ?? [],
+    [tenantId]
+  );
+  const [selectedProperty, setSelectedProperty] = useState('');
+
+  // Update selected property when tenant/properties become available
+  useEffect(() => {
+    if (properties.length > 0 && !properties.find(p => p.id === selectedProperty)) {
+      setSelectedProperty(properties[0].id);
+    }
+  }, [properties, selectedProperty]);
 
   return (
     <div className="p-4 lg:p-6 min-h-full">
@@ -35,7 +55,7 @@ const Dashboard: React.FC = () => {
                   onChange={(e) => setSelectedProperty(e.target.value)}
                   className="block w-full sm:w-auto min-w-[200px] px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
-                  {PROPERTIES.map((property) => (
+                  {properties.map((property) => (
                     <option key={property.id} value={property.id}>
                       {property.name}
                     </option>
@@ -46,7 +66,11 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <RevenueSummary propertyId={selectedProperty} />
+            {selectedProperty ? (
+              <RevenueSummary propertyId={selectedProperty} />
+            ) : (
+              <div className="text-sm text-gray-400 py-8 text-center">Loading properties…</div>
+            )}
           </div>
         </div>
       </div>
